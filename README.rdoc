@@ -1,0 +1,8 @@
+= redis-pubsub plugin for Fluentd
+
+fluent-plugin-redis-pubsub is a fluent plugin for pub/sub of redis
+
+== Copyright
+
+Copyright:: Copyright (c) 2013- Freddie Fujiwara
+License::   Apache License, Version 2.0
