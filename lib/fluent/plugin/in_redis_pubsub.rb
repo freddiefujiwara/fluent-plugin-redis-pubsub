@@ -2,11 +2,12 @@ module Fluent
     class RedisPubsubInput < Input
         Plugin.register_input('redis_pubsub', self)
 
-        attr_reader :host, :port, :channel, :redis
-        config_param :host, :string, :default => 'localhost'
-        config_param :port, :integer, :default =>  6379
+        attr_reader  :redis
+
+        config_param :host,    :string,  :default => 'localhost'
+        config_param :port,    :integer, :default =>  6379
         config_param :channel, :string
-        config_param :tag, :string
+        config_param :tag,     :string
 
         def initialize
             super
@@ -24,16 +25,26 @@ module Fluent
 
         def start
             super
-            @redis = Redis.new(:host => @host, :port => @port ,:thread_safe => true)
+            @redis  = Redis.new(:host => @host, :port => @port ,:thread_safe => true)
+            @thread = Thread.new(&method(:run))
+        end
+
+        def run
             @redis.subscribe @channel do |on|
                 on.message do |channel,msg|
-                    Engine.emit @tag, Engine.now, JSON.parse(msg)
+                    parsed = nil
+                    begin
+                        parsed = JSON.parse msg
+                    rescue JSON::ParserError => e
+                        $log.error e
+                    end
+                    Engine.emit @tag, Engine.now, parsed || msg
                 end
             end
         end
 
         def shutdown
-            @redis.unsubscribe @channel
+            Thread.kill(@thread)
             @redis.quit
         end
     end
