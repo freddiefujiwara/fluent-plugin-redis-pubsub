@@ -1,6 +1,6 @@
 module Fluent
     class RedisPubsubOutput < BufferedOutput
-        Fluent::Plugin.register_output('redis_pubsub', self)
+        Plugin.register_output('redis_pubsub', self)
         attr_reader :host, :port, :channel, :redis
 
         def initialize
