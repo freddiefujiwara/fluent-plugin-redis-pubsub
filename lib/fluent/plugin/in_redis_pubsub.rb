@@ -1,7 +1,12 @@
 module Fluent
-    class RedisPubsubOutput < BufferedOutput
-        Plugin.register_output('redis_pubsub', self)
+    class RedisPubsubInput < Input
+        Plugin.register_input('redis_pubsub', self)
+
         attr_reader :host, :port, :channel, :redis
+        config_param :host, :string, :default => 'localhost'
+        config_param :port, :integer, :default =>  6379
+        config_param :channel, :string
+        config_param :tag, :string
 
         def initialize
             super
@@ -20,24 +25,16 @@ module Fluent
         def start
             super
             @redis = Redis.new(:host => @host, :port => @port ,:thread_safe => true)
+            @redis.subscribe @channel do |on|
+                on.message do |channel,msg|
+                    Engine.emit @tag, Engine.now, JSON.parse(msg)
+                end
+            end
         end
 
         def shutdown
+            @redis.unsubscribe @channel
             @redis.quit
-        end
-
-        def format(tag, time, record)
-            record['__tag__']  = tag
-            record['__time__'] = time
-            record.to_msgpack
-        end
-
-        def write(chunk)
-            @redis.pipelined do
-                chunk.msgpack_each do |record|
-                    @redis.publish @channel, record.to_json
-                end
-            end
         end
     end
 end
