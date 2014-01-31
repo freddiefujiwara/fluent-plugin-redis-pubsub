@@ -7,7 +7,7 @@ module Fluent
         config_param :host,    :string,  :default => 'localhost'
         config_param :port,    :integer, :default =>  6379
         config_param :channel, :string
-        config_param :tag,     :string
+        config_param :tag,     :string,  default: nil
 
         def initialize
             super
@@ -42,7 +42,7 @@ module Fluent
                     rescue JSON::ParserError => e
                         $log.error e
                     end
-                    Engine.emit @tag, Engine.now, parsed || msg
+                    Engine.emit @tag || channel, Engine.now, parsed || msg
                 end
             end
         end
