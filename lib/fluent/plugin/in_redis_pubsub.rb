@@ -30,8 +30,12 @@ module Fluent
         end
 
         def run
-            @redis.subscribe @channel do |on|
-                on.message do |channel,msg|
+            @redis.psubscribe @channel do |on|
+                on.psubscribe do |channel, subscriptions|
+                  $log.info "Subscribed to ##{channel} (#{subscriptions} subscriptions)"
+                end
+
+                on.pmessage do |pattern, channel, msg|
                     parsed = nil
                     begin
                         parsed = JSON.parse msg
