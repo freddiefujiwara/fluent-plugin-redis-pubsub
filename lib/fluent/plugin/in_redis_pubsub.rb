@@ -4,10 +4,10 @@ module Fluent
 
         attr_reader  :redis
 
-        config_param :host,    :string,  :default => 'localhost'
-        config_param :port,    :integer, :default =>  6379
+        config_param :host, :string, default: 'localhost'
+        config_param :port, :integer, default:  6379
         config_param :channel, :string
-        config_param :tag,     :string,  default: nil
+        config_param :tag, :string, default: nil
 
         def initialize
             super
