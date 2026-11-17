@@ -7,7 +7,6 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Freddie Fujiwara"]
   s.date        = %q{2013-09-21}
-  s.email       = "github@ze.gs"
   s.homepage    = "http://github.com/freddiefujiwara/fluent-plugin-redis-pubsub"
   s.summary     = "redis-pubsub plugin for Fluentd"
 
